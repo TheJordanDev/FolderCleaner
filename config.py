@@ -50,13 +50,13 @@ class Target(JSONEncoder):
 class Config:
     theme = 'dark_blue.xml'
     filters = [
-        Filter('Images', ['*.jpg', '*.png', '*.jpeg', '*.gif', '*.bmp'], 'Images'),
-        Filter('Videos', ['*.mp4', '*.mkv', '*.avi', '*.mov', '*.flv'], 'Videos'),
-        Filter('Documents', ['*.doc', '*.docx', '*.pdf', '*.txt', '*.ppt', '*.pptx', '*.xls', '*.xlsx'], 'Documents'),
-        Filter('Music', ['*.mp3', '*.wav', '*.ogg', '*.flac', '*.wma'], 'Music'),
         Filter('Applications', ['*.exe', '*.msi', '*.dmg', '*.deb', '*.rpm'], 'Applications'),
         Filter('Archives', ['*.zip', '*.rar', '*.7z', '*.tar'], 'Archives'),
+        Filter('Documents', ['*.doc', '*.docx', '*.pdf', '*.txt', '*.ppt', '*.pptx', '*.xls', '*.xlsx'], 'Documents'),
+        Filter('Images', ['*.jpg', '*.png', '*.jpeg', '*.gif', '*.bmp'], 'Images'),
+        Filter('Music', ['*.mp3', '*.wav', '*.ogg', '*.flac', '*.wma'], 'Music'),
         Filter('Scripts', ['*.py', '*.js', '*.sh', '*.bat', '*.cmd'], 'Scripts'),
+        Filter('Videos', ['*.mp4', '*.mkv', '*.avi', '*.mov', '*.flv'], 'Videos'),
         Filter('Others', [ '*' ], 'Others')
     ]
 

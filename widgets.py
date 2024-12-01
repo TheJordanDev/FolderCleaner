@@ -1,14 +1,41 @@
 from config import Config, Filter, Target
 from PyQt6.QtWidgets import (
-    QPushButton, QListWidget,
+    QPushButton, QListWidget, QWidget,
     QListWidgetItem, QDialog, QVBoxLayout,
-    QLineEdit, QHBoxLayout, QFileDialog
+    QLineEdit, QHBoxLayout, QFileDialog,
+    QProgressBar, QLabel
 )
 from PyQt6.QtGui import QIcon
 from PyQt6.QtCore import Qt
 
 QLineEdit_dark_stylesheet = """ QLineEdit { color: white; } """
 QLineEdit_light_stylesheet = """ QLineEdit { color: black; } """
+
+class CleaningProgressBar(QWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        layout = QVBoxLayout(self)
+
+        self.label = QLabel(self)
+        layout.addWidget(self.label)
+
+        self.progress_bar = QProgressBar(self)
+        layout.addWidget(self.progress_bar)
+
+    def setValue(self, value):
+        self.progress_bar.setValue(value)
+    
+    def setMaximum(self, value):
+        self.progress_bar.setMaximum(value)
+
+    def increment(self, value=1):
+        self.progress_bar.setValue(self.progress_bar.value() + value)
+    
+    def decrement(self, value=1):
+        self.progress_bar.setValue(self.progress_bar.value() - value)
+    
+    def setLabelText(self, text):
+        self.label.setText(text)
 
 class CustomFilterItem(QListWidgetItem):
     def __init__(self, filter: Filter):

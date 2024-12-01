@@ -1,3 +1,5 @@
+asyncio
 PyQt6
 qt-material
 pyinstaller
+qasync

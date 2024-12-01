@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+from qasync import asyncSlot
 
 from config import Config
 from PyQt6.QtWidgets import (
@@ -8,11 +9,16 @@ from PyQt6.QtWidgets import (
     QGridLayout, QWidget,
     QTabWidget, QListWidget,
     QVBoxLayout, QAbstractItemView,
-    QComboBox
+    QComboBox, QProgressBar, QSpacerItem,
+    QSizePolicy
 )
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QEventLoop
 from PyQt6.QtGui import QIcon
-from widgets import CustomFilterItem, FilterEditorDialog, CustomTargetItem, TargetEditorDialog
+from widgets import (
+    CleaningProgressBar,
+    CustomFilterItem, FilterEditorDialog, 
+    CustomTargetItem, TargetEditorDialog
+)
 from qt_material import apply_stylesheet, list_themes
 
 QComboBox_dark_stylesheet = """ QComboBox { color: white; padding: 5px; } """
@@ -39,20 +45,20 @@ class MainWindow(QMainWindow):
         main_layout = QGridLayout(central_widget)
         central_widget.setLayout(main_layout)
 
-        tab = QTabWidget(self)
-        main_layout.addWidget(tab, 0, 0)
+        self.tab = QTabWidget(self)
+        main_layout.addWidget(self.tab, 0, 0)
 
         self.home_tab = MainWindowTab(self, config)
-        tab.addTab(self.home_tab, "Home")
+        self.tab.addTab(self.home_tab, "Home")
 
         self.filters_tab = FiltersTab(self, config)
-        tab.addTab(self.filters_tab, "Filters")
+        self.tab.addTab(self.filters_tab, "Filters")
 
         self.targets_tab = TargetsTab(self, config)
-        tab.addTab(self.targets_tab, "Targets")
+        self.tab.addTab(self.targets_tab, "Targets")
 
         self.theme_tab = ThemeTab(self, config)
-        tab.addTab(self.theme_tab, "Theme")
+        self.tab.addTab(self.theme_tab, "Theme")
 
     def _get_icon_path(self):
         if getattr(sys, 'frozen', False):
@@ -89,22 +95,41 @@ class MainWindow(QMainWindow):
 class MainWindowTab(QWidget):
     def __init__(self, parent: MainWindow, config: Config):
         super().__init__()
+        self.mainWindow = parent
         self.config = config
-
-        layout = QGridLayout(self)
+        self.cleaning = False
+        layout = QVBoxLayout(self)
         self.setLayout(layout)
 
+        # Spacer to push the button to the center vertically
+        layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
+
         clean_button = QPushButton("Clean Folders", self)
-        layout.addWidget(clean_button, 0, 0)
-        clean_button.clicked.connect(self.clean_folders)
+        layout.addWidget(clean_button, alignment=Qt.AlignmentFlag.AlignHCenter)
+        clean_button.clicked.connect(self._clean_folders)
 
-    def clean_folders(self):
-        print("Cleaning folders")
+        # Spacer to push the button to the center vertically
+        layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
 
-        for target in self.config.targets:
-            print(f"Cleaning {target}")
+        self.progress_bar = CleaningProgressBar(self)
+        layout.addWidget(self.progress_bar, alignment=Qt.AlignmentFlag.AlignBottom)
 
-        print("Done cleaning folders")
+    def _clean_folders(self):
+        from helper import clean_folders
+        
+        self.cleaning = not self.cleaning
+
+        self.progress_bar.label.setText(
+            "Cleaning Progress" if self.cleaning else ""
+        )
+
+        for i in range(1,self.mainWindow.tab.count()):
+            self.mainWindow.tab.setTabVisible(i, not self.cleaning)
+        for i in range(len(self.mainWindow.menuBar().actions())):
+            self.mainWindow.menuBar().actions()[i].setVisible(not self.cleaning)
+
+        if self.cleaning:
+            clean_folders(self.config, self)
 
 class FiltersTab(QWidget):
     def __init__(self, parent: MainWindow, config: Config):
