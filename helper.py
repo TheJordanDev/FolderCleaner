@@ -35,7 +35,7 @@ class FileInstance:
 
 def clean_folders(config: Config, window: 'MainWindowTab'):
     files: list[FileInstance] = []
-    
+
     window.progress_bar.setValue(0)
     window.progress_bar.setMaximum(0)
     window.progress_bar.setLabelText('Looking for files to move...')
@@ -82,3 +82,4 @@ def clean_folders(config: Config, window: 'MainWindowTab'):
     window.progress_bar.setLabelText(f'Done! Moved {moved_count} files.')
     window.progress_bar.setMaximum(100)
     window.progress_bar.setValue(100)
+    window._toggle_all(True)

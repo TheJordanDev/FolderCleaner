@@ -51,10 +51,10 @@ class MainWindow(QMainWindow):
         self.home_tab = MainWindowTab(self, config)
         self.tab.addTab(self.home_tab, "Home")
 
-        self.filters_tab = FiltersTab(self, config)
+        self.filters_tab = FiltersTab(config)
         self.tab.addTab(self.filters_tab, "Filters")
 
-        self.targets_tab = TargetsTab(self, config)
+        self.targets_tab = TargetsTab(config)
         self.tab.addTab(self.targets_tab, "Targets")
 
         self.theme_tab = ThemeTab(self, config)
@@ -97,42 +97,37 @@ class MainWindowTab(QWidget):
         super().__init__()
         self.mainWindow = parent
         self.config = config
-        self.cleaning = False
         layout = QVBoxLayout(self)
         self.setLayout(layout)
 
-        # Spacer to push the button to the center vertically
         layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
 
         clean_button = QPushButton("Clean Folders", self)
         layout.addWidget(clean_button, alignment=Qt.AlignmentFlag.AlignHCenter)
         clean_button.clicked.connect(self._clean_folders)
 
-        # Spacer to push the button to the center vertically
         layout.addSpacerItem(QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding))
 
         self.progress_bar = CleaningProgressBar(self)
         layout.addWidget(self.progress_bar, alignment=Qt.AlignmentFlag.AlignBottom)
 
+    def _toggle_all(self, enabled: bool):
+        for i in range(0,self.mainWindow.tab.count()):
+            self.mainWindow.tab.setTabVisible(i, enabled)
+        for i in range(len(self.mainWindow.menuBar().actions())):
+            self.mainWindow.menuBar().actions()[i].setVisible(enabled)
+
     def _clean_folders(self):
         from helper import clean_folders
+
+        self.progress_bar.setLabelText("Cleaning Progress")
         
-        self.cleaning = not self.cleaning
-
-        self.progress_bar.label.setText(
-            "Cleaning Progress" if self.cleaning else ""
-        )
-
-        for i in range(1,self.mainWindow.tab.count()):
-            self.mainWindow.tab.setTabVisible(i, not self.cleaning)
-        for i in range(len(self.mainWindow.menuBar().actions())):
-            self.mainWindow.menuBar().actions()[i].setVisible(not self.cleaning)
-
-        if self.cleaning:
-            clean_folders(self.config, self)
+        self._toggle_all(False)
+        
+        clean_folders(self.config, self)
 
 class FiltersTab(QWidget):
-    def __init__(self, parent: MainWindow, config: Config):
+    def __init__(self, config: Config):
         super().__init__()
         self.config = config
 
@@ -222,7 +217,7 @@ class FiltersTab(QWidget):
             super().keyPressEvent(event)
 
 class TargetsTab(QWidget):
-    def __init__(self, parent: MainWindow, config: Config):
+    def __init__(self, config: Config):
         super().__init__()
         self.config = config
 
