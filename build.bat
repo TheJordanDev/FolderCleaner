@@ -1,4 +1,4 @@
-python -m PyInstaller --noconfirm --onefile --windowed --icon ".\icon.ico" --name "Folder Cleaner" --add-data ".\config.py;." --add-data ".\helper.py;." --add-data ".\icon.png;." --add-data ".\ui.py;." --add-data ".\widgets.py;."  ".\main.py"
+python -m PyInstaller --noconfirm --onefile --windowed --icon ".\icon.ico" --name "Folder Cleaner" --add-data ".\config.py;." --add-data ".\helper.py;." --add-data ".\icon.png;." --add-data ".\ui.py;." --add-data ".\widgets.py;." --hidden-import PyQt6.QtWidgets --hidden-import PyQt6.QtGui --hidden-import PyQt6.QtCore ".\main.py"
 
 set /p deleteBuildFolder="Do you want to delete the build folder? (y/n): "
 if /i "%deleteBuildFolder%"=="y" (
