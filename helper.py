@@ -3,6 +3,16 @@ from pathlib import Path
 from fnmatch import fnmatch
 from config import Config, Target, Filter
 from ui import MainWindowTab
+import shutil
+
+def is_file_movable(file_path):
+    try:
+        # Try to open the file in append mode
+        with open(file_path, 'a'):
+            pass
+        return True
+    except IOError:
+        return False
 
 class FileInstance:
     def __init__(self, file, config:Config, target:Target):
@@ -75,7 +85,11 @@ def clean_folders(config: Config, window: 'MainWindowTab'):
             target_dir = file_instance.target_path.parent
             if not target_dir.exists():
                 target_dir.mkdir(parents=True, exist_ok=True)
-            file_instance.origin.replace(file_instance.target_path)
+            if is_file_movable(file_instance.origin):
+                shutil.move(file_instance.origin, file_instance.target_path)
+            else:
+                print(f"File {file_instance.origin} is currently in use and cannot be moved.")
+            # file_instance.origin.replace(file_instance.target_path)
             moved_count += 1
         window.progress_bar.increment()
 
